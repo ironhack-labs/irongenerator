@@ -7,8 +7,8 @@
 	"settings": {
 		"files.exclude": {
 			"**/node_modules": true,
-			// "**/LICENSE": true,
-			"**/.eslintignore": true,
+			"**/LICENSE": true,
+			// "**/.eslintignore": true,
 			"**/.travis.yml": true,
 			"**/package-lock.json": true,
 			"**/yarn.lock": true,

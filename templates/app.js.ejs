@@ -1,6 +1,6 @@
 'use strict';
 
-const { join } = require('path');
+const { join } = require('path');
 const express = require('express');
 const createError = require('http-errors');
 <% Object.keys(modules).sort().forEach(function (variable) { -%>
@@ -14,7 +14,7 @@ const <%- variable %> = require('<%- localModules[variable] %>');
 const app = express();
 
 <% if (view) { -%>
-// view engine setup
+// Setup view engine
 <% if (view.render) { -%>
 app.engine('<%- view.engine %>', <%- view.render %>);
 <% } -%>

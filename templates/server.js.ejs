@@ -58,13 +58,14 @@ const initiate = () => {
 };
 
 <% if (database) { -%>
-database.connect({ uri: process.env.MONGODB_URI })
+database.connect({ uri: process.env.MONGODB_URI })
   .then(() => {
     debug(`Database connected to URI "${ URI }"`);
     initiate();
   })
   .catch(error => {
     console.error(`There was an error connecting the database to URI "${ URI }"`);
+    debug(error);
     process.exit(1);
   });
 <% } -%>

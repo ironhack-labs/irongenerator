@@ -7,7 +7,7 @@ app
 .env
 .travis.yml
 
-*eslintrc*
+*eslint*
 *.code-workspace
 /README.md
 test

@@ -8,7 +8,7 @@ const path = require('path');
 const { join } = path;
 const sortedObject = require('sorted-object');
 const { inspect } = require('util');
-const rimraf = require('rimraf')
+const rimraf = require('rimraf');
 const chalk = require('chalk');
 
 const MODE_0666 = parseInt('0666', 8);
@@ -61,7 +61,10 @@ module.exports = ({
     ...packageTemplate,
     scripts: {
       ...packageTemplate.scripts,
-      'dev:debug': `DEBUG=${ name }* npm run dev`
+      'dev:debug': `DEBUG=${ name }* npm run dev`,
+      ...options.linting && {
+        'lint': 'eslint .'
+      }
     },
     dependencies: {
       ...packageTemplate.dependencies,
@@ -73,11 +76,9 @@ module.exports = ({
       ...packageTemplate.devDependencies,
       ...options.linting && {
         'eslint': '^=6.3.0',
-        'eslint-config-standard': '^=4.1.0',
         'eslint-plugin-import': '^=2.18.2',
         'eslint-plugin-node': '^=0.0.0',
-        'eslint-plugin-promise': '^=4.2.1',
-        'eslint-plugin-standard': '^=4.0.1'
+        'eslint-plugin-promise': '^=4.2.1'
       }
     }
   };

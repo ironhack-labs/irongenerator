@@ -8,6 +8,7 @@ const chalk = require('chalk');
 const log = console.log;
 const questions = require('./questions');
 const createApplication = require('./create-app');
+const VERSION = require('./../package').version;
 
 const createAppName = name => name
   .replace(/[^A-Za-z0-9.-]+/g, '-')
@@ -22,7 +23,7 @@ const terminate = () => {
 process.on('SIGINT', terminate);
 process.on('SIGTERM', terminate);
   
-log(chalk.cyan('Welcome to the Ironbuddy Generator!'), '\n');
+log('\n', `${ chalk.cyan('Welcome to Ironmaker!') }  ${ chalk.grey('v.' + VERSION) }`, '\n');
 
 inquirer
   .prompt(questions)

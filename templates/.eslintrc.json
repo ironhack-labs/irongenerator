@@ -1,6 +1,6 @@
 {
   "root": true,
-  "extends": "standard",
+  "extends": "eslint:recommended",
   "env": {
     "es6": true,
     "node": true
@@ -15,18 +15,24 @@
 },
   "rules": {
     "comma-dangle": ["warn", "never"],
-    "no-trailing-spaces": [ "warn" ],
+    "func-call-spacing": ["warn", "never"],
+    "keyword-spacing": ["warn",  { "before": true, "after": true }],
     "no-unused-vars": ["warn"],
     "no-undef": ["error"],
     "no-var": ["warn"],
     "no-param-reassign": ["error"],
     "no-shadow": ["error"],
+    "no-labels": ["error"],
     "prefer-arrow-callback": ["warn"],
     "prefer-const": ["warn"],
     "quote-props": [ "off" ],
     "semi": ["warn", "always"],
-    "space-before-function-paren": ["warn", "never"],
+    "space-before-function-paren": ["warn", {
+      "anonymous": "never",
+      "named": "never",
+      "asyncArrow": "always"
+    }],
     "strict": ["error", "global" ],
-    "indent": [ "warn" ]
+    "space-before-blocks": ["warn", "always"]
   }
 }
