@@ -199,12 +199,11 @@ module.exports = ({
   app.locals.localModules.usersRouter = './routes/user';
   app.locals.mounts.push({ path: '/user', code: 'usersRouter' });
 
-  if (options.git) {
-    copyTemplate('gitignore', join(directory, '.gitignore'));
-  }
+  copyTemplate('gitignore', join(directory, '.gitignore'));
 
   if (options.linting) {
     copyTemplate('.eslintrc.json', join(directory, '.eslintrc.json'));
+    copyTemplate('.eslintignore', join(directory, '.eslintignore'));
   }
 
   if (options.database) {
