@@ -1,0 +1,32 @@
+{
+  "root": true,
+  "extends": "standard",
+  "env": {
+    "es6": true,
+    "node": true
+  },
+  "parserOptions": {
+    "ecmaVersion": 2019,
+    "sourceType": "script",
+    "ecmaFeatures": {
+      "jsx": true,
+      "impliedStrict": false
+    }
+},
+  "rules": {
+    "comma-dangle": ["warn", "never"],
+    "no-trailing-spaces": [ "warn" ],
+    "no-unused-vars": ["warn"],
+    "no-undef": ["error"],
+    "no-var": ["warn"],
+    "no-param-reassign": ["error"],
+    "no-shadow": ["error"],
+    "prefer-arrow-callback": ["warn"],
+    "prefer-const": ["warn"],
+    "quote-props": [ "off" ],
+    "semi": ["warn", "always"],
+    "space-before-function-paren": ["warn", "never"],
+    "strict": ["error", "global" ],
+    "indent": [ "warn" ]
+  }
+}

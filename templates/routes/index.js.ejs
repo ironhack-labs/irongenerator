@@ -1,0 +1,21 @@
+'use strict';
+
+const { Router } = require('express');
+const router = Router();
+<% if (architecture === 'mvc' && !template) { -%>
+const { join } = require('path');
+<% } -%>
+
+router.get('/', (req, res, next) => {
+<% if (architecture === 'mvc' && template) { -%>
+  res.render('index', { title: 'Hello World!' });
+<% } -%>
+<% if (architecture === 'mvc' && !template) { -%>
+  res.sendFile(join(__dirname, '../views', 'index.html'));
+<% } -%>
+<% if (architecture === 'api') { -%>
+  res.json({ type: 'success', data: { title: 'Hello World' } });
+<% } -%>
+});
+
+module.exports = router;

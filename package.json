@@ -1,0 +1,58 @@
+{
+  "name": "ironmaker",
+  "description": "ironmaker helps you quickly generate a simple Node.js application boilerplate",
+  "version": "0.1.0",
+  "author": "José Carneiro <contact@josecarnei.ro>",
+  "keywords": [
+    "express",
+    "framework",
+    "web",
+    "rest",
+    "restful",
+    "router",
+    "app",
+    "api"
+  ],
+  "repository": "josecarneiro/ironmaker",
+  "license": "MIT",
+  "dependencies": {
+    "ejs": "2.7.1",
+    "inquirer": "^7.0.0",
+    "minimatch": "3.0.4",
+    "mkdirp": "0.5.1",
+    "sorted-object": "2.0.1"
+  },
+  "main": "bin/cli.js",
+  "preferGlobal": true,
+  "bin": {
+    "ironmaker": "./bin/cli.js"
+  },
+  "devDependencies": {
+    "eslint": "^=6.3.0",
+    "eslint-config-standard": "^=14.1.0",
+    "eslint-plugin-import": "^=2.18.2",
+    "eslint-plugin-node": "^=10.0.0",
+    "eslint-plugin-promise": "^=4.2.1",
+    "eslint-plugin-standard": "^=4.0.1",
+    "mocha": "^=6.2.0",
+    "rimraf": "^=3.0.0",
+    "supertest": "^=4.0.2",
+    "tree-kill": "^=1.2.1",
+    "uid-safe": "^=2.1.5",
+    "validate-npm-package-name": "^=3.0.0"
+  },
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "files": [
+    "LICENSE",
+    "bin/",
+    "templates/"
+  ],
+  "scripts": {
+    "dev": "./bin/cli.js",
+    "lint": "eslint .",
+    "test": "mocha --reporter spec --bail --check-leaks test/",
+    "test-ci": "mocha --reporter spec --check-leaks test/"
+  }
+}
