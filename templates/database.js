@@ -2,5 +2,11 @@
 
 const mongoose = require('mongoose');
 
-exports.connect = ({ uri }) => mongoose.connect(uri, { useNewUrlParser: true });
+const mongooseConnectionOptions = {
+  useNewUrlParser: true,
+  useCreateIndex: true,
+  useUnifiedTopology: true
+};
+
+exports.connect = uri => mongoose.connect(uri, mongooseConnectionOptions);
 exports.disconnect = mongoose.disconnect;

@@ -6,9 +6,12 @@ const debug = require('debug')('<%- name %>:server');
 const app = require('./../app');
 <% if (database) { -%>
 const database = require('./database');
+<% } -%>
+
+const PORT = parseInt(process.env.PORT, 10);
+<% if (database) { -%>
 const URI = process.env.MONGODB_URI;
 <% } -%>
-const PORT = parseInt(process.env.PORT, 10);
 
 const terminate = () => {
   debug('Terminating node app.');
@@ -58,7 +61,7 @@ const initiate = () => {
 };
 
 <% if (database) { -%>
-database.connect({ uri: process.env.MONGODB_URI })
+database.connect(URI)
   .then(() => {
     debug(`Database connected to URI "${ URI }"`);
     initiate();

@@ -3,6 +3,8 @@
 // const debug = true;
 const debug = false;
 
+const developmentMode = false;
+
 const fs = require('fs');
 const path = require('path');
 
@@ -19,12 +21,10 @@ module.exports = [
     type: 'input',
     message: 'App name:',
     default: 'app',
-    filter: value => {
-      return value
-        .replace(/[^A-Za-z0-9.-]+/g, '-')
-        .replace(/^[-_.]+|-+$|\./g, '')
-        .toLowerCase();
-    },
+    filter: value => value
+      .replace(/[^A-Za-z0-9.-]+/g, '-')
+      .replace(/^[-_.]+|-+$|\./g, '')
+      .toLowerCase(),
     validate: value => !!value || 'Generated app should have a name'
   },
   {
@@ -72,6 +72,13 @@ module.exports = [
     ],
     default: 'scss',
     when: ({ architecture }) => architecture === 'mvc'
+  },
+  {
+    type: 'confirm',
+    name: 'bootstrap',
+    message: 'Include Bootstrap styles and scripts:',
+    default: true,
+    when: ({ architecture }) => developmentMode && architecture === 'mvc'
   },
   {
     type: 'confirm',

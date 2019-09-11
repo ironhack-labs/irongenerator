@@ -75,10 +75,10 @@ module.exports = ({
     devDependencies: {
       ...packageTemplate.devDependencies,
       ...options.linting && {
-        'eslint': '^=6.3.0',
-        'eslint-plugin-import': '^=2.18.2',
-        'eslint-plugin-node': '^=0.0.0',
-        'eslint-plugin-promise': '^=4.2.1'
+        'eslint': '^6.3.0',
+        'eslint-plugin-import': '^2.18.2',
+        'eslint-plugin-node': '^10.0.0',
+        'eslint-plugin-promise': '^4.2.1'
       }
     }
   };
