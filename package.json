@@ -1,7 +1,7 @@
 {
   "name": "ironmaker",
   "description": "ironmaker helps you quickly generate a simple Node.js application boilerplate",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "author": "José Carneiro <contact@josecarnei.ro>",
   "keywords": [
     "express",
@@ -20,6 +20,7 @@
     "inquirer": "^7.0.0",
     "minimatch": "3.0.4",
     "mkdirp": "0.5.1",
+    "rimraf": "^3.0.0",
     "sorted-object": "2.0.1"
   },
   "main": "bin/cli.js",
@@ -33,7 +34,6 @@
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-promise": "^4.2.1",
     "mocha": "^6.2.0",
-    "rimraf": "^3.0.0",
     "supertest": "^4.0.2",
     "tree-kill": "^1.2.1",
     "uid-safe": "^2.1.5",
