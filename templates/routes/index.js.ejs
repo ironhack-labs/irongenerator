@@ -1,7 +1,9 @@
+<% if (strict) { -%>
 'use strict';
 
+<% } -%>
 const { Router } = require('express');
-const router = Router();
+const router = new Router();
 <% if (architecture === 'mvc' && !template) { -%>
 const { join } = require('path');
 <% } -%>

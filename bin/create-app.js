@@ -77,7 +77,7 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
     dependencies: {
       ...packageTemplate.dependencies,
       ...(options.database && {
-        mongoose: '^=5.6.13'
+        mongoose: '^5.6.13'
       })
     },
     devDependencies: {
@@ -90,7 +90,7 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
         'eslint-config-prettier': '^6.3.0',
         'eslint-plugin-prettier': '^3.1.1',
         prettier: '^1.18.2',
-        '@ironh/eslint-config': '0.0.2'
+        '@ironh/eslint-config': '^0.0.2'
       })
     }
   };
@@ -103,48 +103,44 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
   // JavaScript
   const app = loadTemplate('app.js');
   const server = loadTemplate('server.js');
-  const env = loadTemplate('.env');
 
   Object.assign(app.locals, locals);
   Object.assign(server.locals, locals);
-  Object.assign(env.locals, locals);
 
   // App name
   server.locals.name = name;
 
   // App modules
-  app.locals.localModules = Object.create(null);
-  app.locals.modules = Object.create(null);
+  app.locals.localModules = {};
+  app.locals.modules = {};
   app.locals.mounts = [];
   app.locals.uses = [];
 
   app.locals.view = false;
 
+  // Logger
   app.locals.modules.logger = 'morgan';
   app.locals.uses.push("logger('dev')");
   pkg.dependencies.morgan = '^1.9.1';
 
-  app.locals.uses.push('express.json()');
-  app.locals.uses.push('express.urlencoded({ extended: false })');
+  // Body Parsing
+  if (options.api) {
+    app.locals.uses.push('express.json()');
+  } else {
+    app.locals.uses.push('express.urlencoded({ extended: true })');
+  }
 
+  // Cookie Parser
   app.locals.modules.cookieParser = 'cookie-parser';
   app.locals.uses.push('cookieParser()');
   pkg.dependencies['cookie-parser'] = '^1.4.4';
 
+  // Favicon
   app.locals.modules.serveFavicon = 'serve-favicon';
   app.locals.uses.push("serveFavicon(join(__dirname, 'public/images', 'favicon.ico'))");
   pkg.dependencies['serve-favicon'] = '^2.5.0';
 
   if (directory !== '.') createDirectory(directory, '.');
-
-  createDirectory(directory, 'routes');
-
-  // Static files
-  app.locals.uses.push("express.static(join(__dirname, 'public'))");
-  createDirectory(directory, 'public');
-  createDirectory(directory, 'public/images');
-
-  copyTemplateMulti('public/images', join(directory, 'public/images'));
 
   // MVC Pattern App
   if (options.architecture === 'mvc') {
@@ -170,7 +166,7 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
           app.locals.view = {
             engine: 'pug'
           };
-          pkg.dependencies.pug = '2.0.0-beta11';
+          pkg.dependencies.pug = '^2.0.0-beta11';
           break;
       }
     } else {
@@ -192,13 +188,22 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
             'sourceMap: true\n})'
           ].join('\n  ')
         );
-        pkg.dependencies['node-sass-middleware'] = '0.11.0';
+        pkg.dependencies['node-sass-middleware'] = '^0.11.0';
         break;
       default:
         copyTemplateMulti('styles', join(directory, 'public/styles'), '*.css');
         break;
     }
+
+    // Static files
+    app.locals.uses.push("express.static(join(__dirname, 'public'))");
+    createDirectory(directory, 'public');
+    createDirectory(directory, 'public/images');
+
+    copyTemplateMulti('public/images', join(directory, 'public/images'));
   }
+
+  createDirectory(directory, 'routes');
 
   // Index router mount
   const routesIndex = loadTemplate('routes/index.js');
@@ -231,7 +236,10 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
 
   if (options.database) {
     createDirectory(directory, 'models');
-    copyTemplateMulti('models', join(directory, 'models'), '*.js');
+
+    const userModel = loadTemplate('./models/user.js');
+    Object.assign(userModel.locals, locals);
+    writeFile(join(directory, 'models', 'user.js'), userModel.render(), { verbose });
   }
 
   if (options.api) {
@@ -245,6 +253,9 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
   writeFile(join(directory, 'app.js'), app.render(), { verbose });
   writeFile(join(directory, 'package.json'), JSON.stringify(pkg, null, 2) + '\n', { verbose });
   writeFile(join(directory, 'server.js'), server.render(), { allowExecution: true, verbose });
+
+  const env = loadTemplate('.env');
+  Object.assign(env.locals, locals);
   writeFile(join(directory, '.env'), env.render(), { verbose });
 
   // Output instructions for usage

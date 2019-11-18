@@ -5,18 +5,17 @@
 const { join } = require('path');
 const express = require('express');
 const createError = require('http-errors');
-<% Object.keys(modules).sort().forEach(function (variable) { -%>
+<% Object.keys(modules).sort().forEach(variable => { -%>
 const <%- variable %> = require('<%- modules[variable] %>');
 <% }); -%>
 
-<% Object.keys(localModules).sort().forEach(function (variable) { -%>
+<% Object.keys(localModules).sort().forEach(variable => { -%>
 const <%- variable %> = require('<%- localModules[variable] %>');
 <% }); -%>
 
 const app = express();
 
 <% if (view) { -%>
-// Setup view engine
 <% if (view.render) { -%>
 app.engine('<%- view.engine %>', <%- view.render %>);
 <% } -%>
@@ -24,11 +23,11 @@ app.set('views', join(__dirname, 'views'));
 app.set('view engine', '<%- view.engine %>');
 
 <% } -%>
-<% uses.forEach(function (use) { -%>
+<% uses.forEach(use => { -%>
 app.use(<%- use %>);
 <% }); -%>
 
-<% mounts.forEach(function (mount) { -%>
+<% mounts.forEach(mount => { -%>
 app.use(<%= mount.path %>, <%- mount.code %>);
 <% }); -%>
 

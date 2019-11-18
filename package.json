@@ -1,7 +1,7 @@
 {
   "name": "ironmaker",
   "description": "ironmaker helps you quickly generate a simple Node.js application boilerplate",
-  "version": "0.1.6",
+  "version": "0.1.7",
   "author": "José Carneiro <contact@josecarnei.ro>",
   "keywords": [
     "express",
@@ -21,7 +21,7 @@
     "ironmaker": "./bin/cli.js"
   },
   "scripts": {
-    "dev": "./bin/cli.js",
+    "dev": "rm -rf ./app && ./bin/cli.js",
     "lint": "eslint .",
     "test": "mocha --reporter spec --bail --check-leaks test/",
     "test-ci": "mocha --reporter spec --check-leaks test/"
@@ -30,27 +30,25 @@
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "ejs": "2.7.1",
+    "ejs": "^2.7.2",
     "inquirer": "^7.0.0",
-    "minimatch": "3.0.4",
-    "mkdirp": "0.5.1",
+    "minimatch": "^3.0.4",
+    "mkdirp": "^0.5.1",
     "rimraf": "^3.0.0",
-    "sorted-object": "2.0.1"
+    "sorted-object": "^2.0.1"
   },
   "devDependencies": {
     "@ironh/eslint-config": "^0.0.2",
-    "eslint": "^6.3.0",
-    "eslint-config-prettier": "^6.3.0",
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.6.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-node": "^10.0.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-promise": "^4.2.1",
-    "mocha": "^6.2.0",
-    "prettier": "^1.18.2",
+    "mocha": "^6.2.2",
+    "prettier": "^1.19.1",
     "supertest": "^4.0.2",
-    "tree-kill": "^1.2.1",
-    "uid-safe": "^2.1.5",
-    "validate-npm-package-name": "^3.0.0"
+    "uid-safe": "^2.1.5"
   },
   "files": [
     "LICENSE",

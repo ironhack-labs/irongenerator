@@ -33,6 +33,7 @@ process.on('SIGINT', terminate);
 process.on('SIGTERM', terminate);
 process.on('uncaughtException', error => {
   debug('There was an uncaught exception.');
+  debug(error);
   terminate();
 });
 
@@ -62,11 +63,12 @@ const initiate = () => {
 };
 
 <% if (database) { -%>
-mongoose.connect(URI, {
-  useNewUrlParser: true,
-  useCreateIndex: true,
-  useUnifiedTopology: true
-})
+mongoose
+  .connect(URI, {
+    useNewUrlParser: true,
+    useCreateIndex: true,
+    useUnifiedTopology: true
+  })
   .then(() => {
     debug(`Database connected to URI "${ URI }"`);
     initiate();
