@@ -6,4 +6,5 @@ yarn.lock
 app
 .env
 /test
-.travis.yml
+.code
+*.code-workspace

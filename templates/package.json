@@ -3,8 +3,7 @@
   "private": true,
   "scripts": {
     "start": "node ./server",
-    "dev": "nodemon ./server",
-    "dev:debug": "DEBUG=app* npm run dev"
+    "dev": "nodemon ./server"
   },
   "dependencies": {
     "debug": "^4.1.1",

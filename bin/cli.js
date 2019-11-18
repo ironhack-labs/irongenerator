@@ -8,12 +8,13 @@ const chalk = require('chalk');
 const log = console.log;
 const questions = require('./questions');
 const createApplication = require('./create-app');
-const VERSION = require('./../package').version;
+const { version: VERSION } = require('./../package');
 
-const createAppName = name => name
-  .replace(/[^A-Za-z0-9.-]+/g, '-')
-  .replace(/^[-_.]+|-+$/g, '')
-  .toLowerCase();
+const createAppName = name =>
+  name
+    .replace(/[^A-Za-z0-9.-]+/g, '-')
+    .replace(/^[-_.]+|-+$/g, '')
+    .toLowerCase();
 
 const terminate = () => {
   console.log('Terminating ironmaker');
@@ -22,8 +23,8 @@ const terminate = () => {
 
 process.on('SIGINT', terminate);
 process.on('SIGTERM', terminate);
-  
-log('\n', `${ chalk.cyan('Welcome to Ironmaker!') }  ${ chalk.grey('v.' + VERSION) }`, '\n');
+
+log('\n', `${chalk.cyan('Welcome to ironmaker!')}  ${chalk.grey('v.' + VERSION)}`, '\n');
 
 inquirer
   .prompt(questions)
@@ -32,7 +33,8 @@ inquirer
     const options = {
       name,
       directory: path.resolve(process.cwd(), name),
-      ...answers
+      ...answers,
+      verbose: true
     };
     console.log('\n');
     await createApplication(options);

@@ -3,83 +3,95 @@
 const ejs = require('ejs');
 const fs = require('fs');
 const minimatch = require('minimatch');
-const mkdirp = require('mkdirp');
 const path = require('path');
 const { join } = path;
 const sortedObject = require('sorted-object');
 const { inspect } = require('util');
-const rimraf = require('rimraf');
 const chalk = require('chalk');
+const { createDirectory, deleteDirectory, writeFile, readFile } = require('./utilities');
 
-const MODE_0666 = parseInt('0666', 8);
-const MODE_0755 = parseInt('0755', 8);
 const TEMPLATE_DIR = join(__dirname, '..', 'templates');
 
-const launchedFromCmd = process.platform === 'win32' && process.env._ === undefined;
-const deleteDirectory = directory => ![ '*', '.' ].includes(directory) && rimraf.sync(directory);
-const logCreation = destination => console.log(`   ${ chalk.cyan('created') }: ${ destination }`);
+const outputInstructions = ({ name, directory }) => {
+  const launchedFromCmd = process.platform === 'win32' && process.env._ === undefined;
+  const prompt = launchedFromCmd ? '>' : '$';
 
-const mkdir = (base, dir) => {
-  const loc = join(base, dir);
-  logCreation(loc + path.sep);
-  mkdirp.sync(loc, MODE_0755);
+  if (directory !== '.') {
+    console.log();
+    console.log(chalk.cyan('   change directory:'));
+    console.log('     %s cd %s', prompt, directory);
+  }
+
+  console.log('\n', chalk.cyan('  install dependencies:'));
+  console.log('     %s npm install', prompt);
+  console.log('\n', chalk.cyan('  run the app in development mode:'));
+  console.log('     %s npm run dev', prompt);
+  console.log('\n', chalk.cyan('  run the app in production mode:'));
+  console.log('     %s npm start', prompt);
+
+  console.log();
 };
 
-const write = (file, str, mode) => {
-  fs.writeFileSync(file, str, { mode: mode || MODE_0666 });
-  logCreation(file);
-};
+const copyTemplate = (from, to) => writeFile(to, readFile(TEMPLATE_DIR, from));
 
-const copyTemplate = (from, to) => write(to, fs.readFileSync(join(TEMPLATE_DIR, from), 'utf-8'));
-
-const copyTemplateMulti = (fromDir, toDir, nameGlob = '*') => {
-  fs.readdirSync(join(TEMPLATE_DIR, fromDir))
-    .filter(minimatch.filter(nameGlob, { matchBase: true }))
+const copyTemplateMulti = (fromDirectory, toDirectory, nameGlob = '*') => {
+  fs.readdirSync(join(TEMPLATE_DIR, fromDirectory))
+    .filter(
+      minimatch.filter(nameGlob, {
+        matchBase: true
+      })
+    )
     .forEach(name => {
-      copyTemplate(join(fromDir, name), join(toDir, name));
+      copyTemplate(join(fromDirectory, name), join(toDirectory, name));
     });
 };
 
 const loadTemplate = name => {
-  const contents = fs.readFileSync(join(__dirname, '..', 'templates', (name + '.ejs')), 'utf-8');
-  const locals = Object.create(null);
-  const render = () => ejs.render(contents, locals, { escape: inspect });
-  return { locals, render };
+  const contents = readFile(TEMPLATE_DIR, `${name}.ejs`);
+  const locals = {};
+  const render = () =>
+    ejs.render(contents, locals, {
+      escape: inspect
+    });
+  return {
+    locals,
+    render
+  };
 };
 
-module.exports = ({
-  name,
-  directory,
-  ...options
-}) => {
+module.exports = ({ name, directory, verbose = false, ...options }) => {
   deleteDirectory(directory);
 
   // Package
-  const packageTemplate = require(join(TEMPLATE_DIR, '/package.json'));
+  const packageTemplate = require(join(TEMPLATE_DIR, 'package.json'));
   const pkg = {
     name,
     ...packageTemplate,
     scripts: {
       ...packageTemplate.scripts,
-      'dev:debug': `DEBUG=${ name }* npm run dev`,
-      ...options.linting && {
-        'lint': 'eslint .'
-      }
+      'dev:debug': `DEBUG=${name}* npm run dev`,
+      ...(options.linting && {
+        lint: 'eslint .'
+      })
     },
     dependencies: {
       ...packageTemplate.dependencies,
-      ...options.database && {
-        'mongoose': '^=5.6.13'
-      }
+      ...(options.database && {
+        mongoose: '^=5.6.13'
+      })
     },
     devDependencies: {
       ...packageTemplate.devDependencies,
-      ...options.linting && {
-        'eslint': '^6.3.0',
+      ...(options.linting && {
+        eslint: '^6.3.0',
         'eslint-plugin-import': '^2.18.2',
         'eslint-plugin-node': '^10.0.0',
-        'eslint-plugin-promise': '^4.2.1'
-      }
+        'eslint-plugin-promise': '^4.2.1',
+        'eslint-config-prettier': '^6.3.0',
+        'eslint-plugin-prettier': '^3.1.1',
+        prettier: '^1.18.2',
+        '@ironh/eslint-config': '0.0.2'
+      })
     }
   };
 
@@ -90,15 +102,15 @@ module.exports = ({
 
   // JavaScript
   const app = loadTemplate('app.js');
-  const www = loadTemplate('server.js');
+  const server = loadTemplate('server.js');
   const env = loadTemplate('.env');
-  
+
   Object.assign(app.locals, locals);
-  Object.assign(www.locals, locals);
+  Object.assign(server.locals, locals);
   Object.assign(env.locals, locals);
 
   // App name
-  www.locals.name = name;
+  server.locals.name = name;
 
   // App modules
   app.locals.localModules = Object.create(null);
@@ -120,41 +132,44 @@ module.exports = ({
   pkg.dependencies['cookie-parser'] = '^1.4.4';
 
   app.locals.modules.serveFavicon = 'serve-favicon';
-  app.locals.uses.push('serveFavicon(join(__dirname, \'public/images\', \'favicon.ico\'))');
+  app.locals.uses.push("serveFavicon(join(__dirname, 'public/images', 'favicon.ico'))");
   pkg.dependencies['serve-favicon'] = '^2.5.0';
 
-  if (directory !== '.') mkdir(directory, '.');
+  if (directory !== '.') createDirectory(directory, '.');
 
-  mkdir(directory, 'server');
-  mkdir(directory, 'routes');
+  createDirectory(directory, 'routes');
 
   // Static files
-  app.locals.uses.push('express.static(join(__dirname, \'public\'))');
-  mkdir(directory, 'public');
-  mkdir(directory, 'public/images');
-  
+  app.locals.uses.push("express.static(join(__dirname, 'public'))");
+  createDirectory(directory, 'public');
+  createDirectory(directory, 'public/images');
+
   copyTemplateMulti('public/images', join(directory, 'public/images'));
-  
+
   // MVC Pattern App
   if (options.architecture === 'mvc') {
-    mkdir(directory, 'public/scripts');
-    mkdir(directory, 'public/styles');
+    createDirectory(directory, 'public/scripts');
+    createDirectory(directory, 'public/styles');
 
     copyTemplateMulti('public/scripts', join(directory, 'public/scripts'));
 
     // Views
-    mkdir(directory, 'views');
+    createDirectory(directory, 'views');
 
     if (options.template) {
       switch (options.template) {
         case 'hbs':
           copyTemplateMulti('views', join(directory, 'views'), '*.hbs');
-          app.locals.view = { engine: 'hbs' };
+          app.locals.view = {
+            engine: 'hbs'
+          };
           pkg.dependencies.hbs = '^4.0.4';
           break;
         case 'pug':
           copyTemplateMulti('views', join(directory, 'views'), '*.pug');
-          app.locals.view = { engine: 'pug' };
+          app.locals.view = {
+            engine: 'pug'
+          };
           pkg.dependencies.pug = '2.0.0-beta11';
           break;
       }
@@ -166,19 +181,21 @@ module.exports = ({
     // CSS Engine support
     switch (options.style) {
       case 'scss':
-        copyTemplateMulti('styles', join(directory, '/public/styles'), '*.scss');
+        copyTemplateMulti('styles', join(directory, 'public/styles'), '*.scss');
         app.locals.modules.sassMiddleware = 'node-sass-middleware';
-        app.locals.uses.push([
-          'sassMiddleware({',
-          'src: join(__dirname, \'public\'),',
-          'dest: join(__dirname, \'public\'),',
-          'outputStyle: process.env.NODE_ENV === \'development\' ? \'nested\' : \'compressed\',',
-          'sourceMap: true\n})'
-        ].join('\n  '));
+        app.locals.uses.push(
+          [
+            'sassMiddleware({',
+            "src: join(__dirname, 'public'),",
+            "dest: join(__dirname, 'public'),",
+            "outputStyle: process.env.NODE_ENV === 'development' ? 'nested' : 'compressed',",
+            'sourceMap: true\n})'
+          ].join('\n  ')
+        );
         pkg.dependencies['node-sass-middleware'] = '0.11.0';
         break;
       default:
-        copyTemplateMulti('styles', join(directory, '/public/styles'), '*.css');
+        copyTemplateMulti('styles', join(directory, 'public/styles'), '*.css');
         break;
     }
   }
@@ -186,18 +203,24 @@ module.exports = ({
   // Index router mount
   const routesIndex = loadTemplate('routes/index.js');
   Object.assign(routesIndex.locals, locals);
-  write(join(directory, 'routes/index.js'), routesIndex.render());
+  writeFile(join(directory, 'routes/index.js'), routesIndex.render(), { verbose });
 
   app.locals.localModules.indexRouter = './routes/index';
-  app.locals.mounts.push({ path: '/', code: 'indexRouter' });
-  
+  app.locals.mounts.push({
+    path: '/',
+    code: 'indexRouter'
+  });
+
   // User router mount
   const routesUser = loadTemplate('routes/user.js');
   Object.assign(routesUser.locals, locals);
-  write(join(directory, 'routes/user.js'), routesUser.render());
-  
+  writeFile(join(directory, 'routes/user.js'), routesUser.render(), { verbose });
+
   app.locals.localModules.usersRouter = './routes/user';
-  app.locals.mounts.push({ path: '/user', code: 'usersRouter' });
+  app.locals.mounts.push({
+    path: '/user',
+    code: 'usersRouter'
+  });
 
   copyTemplate('gitignore', join(directory, '.gitignore'));
 
@@ -207,41 +230,23 @@ module.exports = ({
   }
 
   if (options.database) {
-    mkdir(directory, 'models');
-    copyTemplate('database.js', join(directory, '/server/database.js'));
-    copyTemplateMulti('models', join(directory, '/models'), '*.js');
+    createDirectory(directory, 'models');
+    copyTemplateMulti('models', join(directory, 'models'), '*.js');
   }
 
   if (options.api) {
     // Use API template instead of default app
   }
 
-  // sort dependencies like npm(1)
+  // Sort dependencies in package.json
   pkg.dependencies = sortedObject(pkg.dependencies);
 
-  // write files
-  write(join(directory, 'app.js'), app.render());
-  write(join(directory, 'package.json'), JSON.stringify(pkg, null, 2) + '\n');
-  write(join(directory, 'server/index.js'), www.render(), MODE_0755);
-  write(join(directory, '.env'), env.render());
+  // Write files
+  writeFile(join(directory, 'app.js'), app.render(), { verbose });
+  writeFile(join(directory, 'package.json'), JSON.stringify(pkg, null, 2) + '\n', { verbose });
+  writeFile(join(directory, 'server.js'), server.render(), { allowExecution: true, verbose });
+  writeFile(join(directory, '.env'), env.render(), { verbose });
 
-  const prompt = launchedFromCmd ? '>' : '$';
-
-  if (directory !== '.') {
-    console.log();
-    console.log(chalk.cyan('   change directory:'));
-    console.log('     %s cd %s', prompt, directory);
-  }
-
-  console.log('\n', chalk.cyan('  install dependencies:'));
-  console.log('     %s npm install', prompt);
-  console.log('\n', chalk.cyan('  run the app:'));
-
-  if (launchedFromCmd) {
-    console.log('     %s SET DEBUG=%s:* & npm start', prompt, name);
-  } else {
-    console.log('     %s DEBUG=%s:* npm start', prompt, name);
-  }
-
-  console.log();
+  // Output instructions for usage
+  if (verbose) outputInstructions({ name, directory });
 };
