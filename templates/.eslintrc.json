@@ -3,5 +3,5 @@
   "env": {
     "node": true
   },
-  "extends": "@ironh/eslint-config/node"
+  "extends": "@ironh/eslint-config"
 }
