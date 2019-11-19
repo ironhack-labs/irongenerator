@@ -1,13 +1,16 @@
 .DS_Store
 node_modules/
 *.log*
+*.code-workspace
 package-lock.json
 yarn.lock
 app
 .env
-.travis.yml
 
-*eslint*
-*.code-workspace
+/.eslintignore
+/.eslintrc.json
+/.prettierrc
+/.prettierignore
 /README.md
+
 test
