@@ -4,9 +4,15 @@
 $ npm install -g ironmaker
 ```
 
+If your terminal displays permission errors, you might not have administrator privileges. To get around this issue, reopen your terminal as an administrator, or run the following command instead:
+
+```sh
+$ sudo npm install -g ironmaker
+```
+
 ## Quick Start
 
-Create an app:
+To create an app, run the following command and follow the instructions you're given:
 
 ```bash
 $ ironmaker
@@ -18,7 +24,13 @@ Install dependencies:
 $ npm install
 ```
 
-Start the app at `http://localhost:3000/`:
+To run the app in development mode:
+
+```bash
+$ npm run dev
+```
+
+To start the app in production:
 
 ```bash
 $ npm start

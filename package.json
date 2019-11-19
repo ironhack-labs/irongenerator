@@ -1,7 +1,7 @@
 {
   "name": "ironmaker",
   "description": "ironmaker helps you quickly generate a simple Node.js application boilerplate",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "author": "José Carneiro <contact@josecarnei.ro>",
   "keywords": [
     "express",

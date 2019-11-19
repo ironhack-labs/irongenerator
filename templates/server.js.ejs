@@ -15,26 +15,31 @@ const PORT = parseInt(process.env.PORT, 10);
 const URI = process.env.MONGODB_URI;
 <% } -%>
 
-const terminate = () => {
+const terminate = error => {
+  if (error) debug(error);
+  const exitCode = error && error instanceof Error ? 1 : 0;
   debug('Terminating node app.');
 <% if (database) { -%>
   mongoose.disconnect()
-    .then(() => {
-      debug('Disconnect from database');
-      process.exit(0);
+    .finally(() => {
+      debug('Disconnected from database.');
+      process.exit(exitCode);
     });
 <% } -%>
 <% if (!database) { -%>
-  process.exit(0);
+  process.exit(exitCode);
 <% } -%>
 };
 
-process.on('SIGINT', terminate);
-process.on('SIGTERM', terminate);
+process.on('SIGINT', () => terminate());
+process.on('SIGTERM', () => terminate());
 process.on('uncaughtException', error => {
   debug('There was an uncaught exception.');
-  debug(error);
-  terminate();
+  terminate(error);
+});
+process.on('unhandledRejection', error => {
+  debug('There was an unhandled promise rejection.');
+  terminate(error);
 });
 
 const onError = error => {
