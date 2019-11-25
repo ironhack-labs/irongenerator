@@ -1,25 +1,22 @@
 'use strict';
 
-const ejs = require('ejs');
-const fs = require('fs');
-const minimatch = require('minimatch');
-const path = require('path');
-const { join } = path;
-const sortedObject = require('sorted-object');
+const { join } = require('path');
 const { inspect } = require('util');
+const minimatch = require('minimatch');
+const sortedObject = require('sorted-object');
+const ejs = require('ejs');
 const chalk = require('chalk');
-const { createDirectory, deleteDirectory, writeFile, readFile } = require('./utilities');
+const { createDirectory, deleteDirectory, readDirectory, writeFile, readFile, normalizePath } = require('./utilities');
 
 const TEMPLATE_DIR = join(__dirname, '..', 'templates');
 
-const outputInstructions = ({ name, directory }) => {
-  const launchedFromCmd = process.platform === 'win32' && process.env._ === undefined;
-  const prompt = launchedFromCmd ? '>' : '$';
+const outputInstructions = ({ directory }) => {
+  const prompt = process.platform === 'win32' && process.env._ === undefined ? '>' : '$';
 
   if (directory !== '.') {
     console.log();
     console.log(chalk.cyan('   change directory:'));
-    console.log('     %s cd %s', prompt, directory);
+    console.log('     %s cd %s', prompt, normalizePath(directory));
   }
 
   console.log('\n', chalk.cyan('  install dependencies:'));
@@ -32,17 +29,17 @@ const outputInstructions = ({ name, directory }) => {
   console.log();
 };
 
-const copyTemplate = (from, to) => writeFile(to, readFile(TEMPLATE_DIR, from));
+const copyTemplate = (from, to, { verbose }) => writeFile(to, readFile(TEMPLATE_DIR, from), { verbose });
 
 const copyTemplateMulti = (fromDirectory, toDirectory, nameGlob = '*') => {
-  fs.readdirSync(join(TEMPLATE_DIR, fromDirectory))
+  readDirectory(join(TEMPLATE_DIR, fromDirectory))
     .filter(
       minimatch.filter(nameGlob, {
         matchBase: true
       })
     )
     .forEach(name => {
-      copyTemplate(join(fromDirectory, name), join(toDirectory, name));
+      copyTemplate(join(fromDirectory, name), join(toDirectory, name), { verbose: true });
     });
 };
 
@@ -81,17 +78,7 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
       })
     },
     devDependencies: {
-      ...packageTemplate.devDependencies,
-      ...(options.linting && {
-        eslint: '^6.3.0',
-        'eslint-plugin-import': '^2.18.2',
-        'eslint-plugin-node': '^10.0.0',
-        'eslint-plugin-promise': '^4.2.1',
-        'eslint-config-prettier': '^6.3.0',
-        'eslint-plugin-prettier': '^3.1.1',
-        prettier: '^1.18.2',
-        '@ironh/eslint-config': '^0.0.2'
-      })
+      ...packageTemplate.devDependencies
     }
   };
 
@@ -131,9 +118,11 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
   }
 
   // Cookie Parser
-  app.locals.modules.cookieParser = 'cookie-parser';
-  app.locals.uses.push('cookieParser()');
-  pkg.dependencies['cookie-parser'] = '^1.4.4';
+  if (options.authentication.enabled) {
+    app.locals.modules.cookieParser = 'cookie-parser';
+    app.locals.uses.push('cookieParser()');
+    pkg.dependencies['cookie-parser'] = '^1.4.4';
+  }
 
   // Favicon
   app.locals.modules.serveFavicon = 'serve-favicon';
@@ -160,6 +149,11 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
             engine: 'hbs'
           };
           pkg.dependencies.hbs = '^4.0.4';
+          {
+            const layoutTemplate = loadTemplate('views/layout.hbs');
+            Object.assign(layoutTemplate.locals, locals);
+            writeFile(join(directory, 'views/layout.hbs'), layoutTemplate.render(), { verbose });
+          }
           break;
         case 'pug':
           copyTemplateMulti('views', join(directory, 'views'), '*.pug');
@@ -205,6 +199,32 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
 
   createDirectory(directory, 'routes');
 
+  // Session and authentication
+  if (options.authentication.enabled) {
+    app.locals.modules.expressSession = 'express-session';
+    pkg.dependencies['express-session'] = '^1.17.0';
+    app.locals.modules.connectMongo = 'connect-mongo';
+    pkg.dependencies['connect-mongo'] = '^3.1.2';
+    app.locals.modules.mongoose = 'mongoose';
+    pkg.dependencies['bcryptjs'] = '^2.4.3';
+    app.locals.uses.push(`
+  expressSession({
+    secret: process.env.SESSION_SECRET,
+    resave: true,
+    saveUninitialized: false,
+    cookie: {
+      maxAge: 60 * 60 * 24 * 15,
+      sameSite: true,
+      httpOnly: true,
+      // secure: process.env.NODE_ENV !== 'development'
+    },
+    store: new (connectMongo(expressSession))({
+      mongooseConnection: mongoose.connection,
+      ttl: 60 * 60 * 24
+    })
+  })`);
+  }
+
   // Index router mount
   const routesIndex = loadTemplate('routes/index.js');
   Object.assign(routesIndex.locals, locals);
@@ -227,11 +247,33 @@ module.exports = ({ name, directory, verbose = false, ...options }) => {
     code: 'usersRouter'
   });
 
-  copyTemplate('gitignore', join(directory, '.gitignore'));
+  if (options.authentication.enabled) {
+    const authenticationRouter = loadTemplate('routes/authentication.js');
+    Object.assign(authenticationRouter.locals, locals);
+    writeFile(join(directory, 'routes/authentication.js'), authenticationRouter.render(), { verbose });
+
+    app.locals.localModules.authenticationRouter = './routes/authentication';
+    app.locals.mounts.push({
+      path: '/authentication',
+      code: 'authenticationRouter'
+    });
+  }
+
+  copyTemplate('gitignore', join(directory, '.gitignore'), { verbose });
 
   if (options.linting) {
-    copyTemplate('.eslintrc.json', join(directory, '.eslintrc.json'));
-    copyTemplate('.eslintignore', join(directory, '.eslintignore'));
+    Object.assign(pkg.devDependencies, {
+      eslint: '^6.3.0',
+      'eslint-plugin-import': '^2.18.2',
+      'eslint-plugin-node': '^10.0.0',
+      'eslint-plugin-promise': '^4.2.1',
+      'eslint-config-prettier': '^6.3.0',
+      'eslint-plugin-prettier': '^3.1.1',
+      prettier: '^1.18.2',
+      '@ironh/eslint-config': '^0.0.2'
+    });
+    copyTemplate('.eslintrc.json', join(directory, '.eslintrc.json'), { verbose });
+    copyTemplate('.eslintignore', join(directory, '.eslintignore'), { verbose });
   }
 
   if (options.database) {

@@ -82,7 +82,7 @@ module.exports = [
   {
     type: 'list',
     name: 'style',
-    message: 'Style compiler:',
+    message: 'Style Preprocessor:',
     choices: [
       {
         name: 'None (static CSS)',
@@ -108,6 +108,31 @@ module.exports = [
     name: 'database',
     default: true,
     message: 'Use MongoDB:'
+  },
+  {
+    type: 'confirm',
+    name: 'authentication.enabled',
+    // default: false,
+    default: true,
+    message: 'Include Authentication:',
+    when: ({ database }) => database
+  },
+  {
+    type: 'list',
+    name: 'authentication.mechanism',
+    message: 'Authentication Mechanism:',
+    choices: [
+      {
+        name: 'Basic Session and Cookie',
+        value: null
+      },
+      {
+        name: 'Passport',
+        value: 'passport'
+      }
+    ],
+    default: null,
+    when: ({ authentication: { enabled } = {} }) => enabled
   },
   {
     type: 'confirm',

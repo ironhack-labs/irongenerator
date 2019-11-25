@@ -1,0 +1,101 @@
+<% if (strict) { -%>
+'use strict';
+
+<% } -%>
+const { Router } = require('express');
+const router = new Router();
+<% if (architecture === 'mvc' && !template) { -%>
+const { join } = require('path');
+<% } -%>
+<% if (authentication.enabled && !authentication.mechanism) { -%>
+const User = require('./../models/user');
+const bcryptjs = require('bcryptjs');
+<% } -%>
+
+<% if (architecture === 'mvc') { -%>
+router.get('/sign-up', (req, res, next) => {
+<% if (template) { -%>
+  res.render('sign-up');
+<% } -%>
+<% if (!template) { -%>
+  res.sendFile(join(__dirname, '../views', 'authentication/sign-up.html'));
+<% } -%>
+});
+
+<% } -%>
+router.post('/sign-up', (req, res, next) => {
+  const { name, email, password } = req.body;
+  bcryptjs
+    .hash(password, 10)
+    .then(hash => {
+      return User.create({
+        name,
+        email,
+        passwordHash: hash
+      });
+    })
+    .then(user => {
+      req.session.user = user._id;
+<% if (architecture === 'mvc') { -%>
+      res.redirect('/');
+<% } -%>
+<% if (architecture === 'api') { -%>
+      res.json({ user });
+<% } -%>
+    })
+    .catch(error => {
+      next(error);
+    });
+});
+
+<% if (architecture === 'mvc') { -%>
+router.get('/sign-in', (req, res, next) => {
+<% if (template) { -%>
+  res.render('sign-in');
+<% } -%>
+<% if (!template) { -%>
+  res.sendFile(join(__dirname, '../views', 'authentication/sign-in.html'));
+<% } -%>
+});
+
+<% } -%>
+router.post('/sign-in', (req, res, next) => {
+  let userId;
+  const { email, password } = req.body;
+  User.findOne({ email })
+    .then(user => {
+      if (!user) {
+        return Promise.reject(new Error("There's no user with that email."));
+      } else {
+        userId = user._id;
+        return bcryptjs.compare(password, user.passwordHash);
+      }
+    })
+    .then(result => {
+      if (result) {
+        req.session.user = userId;
+<% if (architecture === 'mvc') { -%>
+        res.redirect('/');
+<% } -%>
+<% if (architecture === 'api') { -%>
+        res.json({ user });
+<% } -%>
+      } else {
+        return Promise.reject(new Error('Wrong password.'));
+      }
+    })
+    .catch(error => {
+      next(error);
+    });
+});
+
+router.post('/sign-out', (req, res, next) => {
+  req.session.destroy();
+<% if (architecture === 'mvc') { -%>
+  res.redirect('/');
+<% } else if (architecture === 'api') { -%>
+  res.json({});
+<% } -%>
+});
+
+module.exports = router;

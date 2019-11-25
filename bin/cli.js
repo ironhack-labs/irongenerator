@@ -37,6 +37,7 @@ inquirer
       verbose: true
     };
     console.log('\n');
+    console.log(answers);
     await createApplication(options);
   })
   .catch(error => {

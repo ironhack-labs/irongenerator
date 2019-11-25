@@ -1,20 +1,21 @@
 'use strict';
 
 const fs = require('fs');
+const { join, sep: separator } = require('path');
 const mkdirp = require('mkdirp');
-const path = require('path');
-const { join } = path;
 const rimraf = require('rimraf');
 const chalk = require('chalk');
 
 const MODE_0666 = parseInt('0666', 8);
 const MODE_0755 = parseInt('0755', 8);
 
-const logCreation = destination => console.log(`   ${chalk.cyan('created')}: ${destination}`);
+const normalizePath = destination => destination.replace(process.cwd(), '');
+
+const logCreation = destination => console.log(`   ${chalk.cyan('created')}: ${normalizePath(destination)}`);
 
 const createDirectory = (base, directory) => {
   const location = join(base, directory);
-  logCreation(location + path.sep);
+  logCreation(location + separator);
   mkdirp.sync(location, MODE_0755);
 };
 const deleteDirectory = directory => !['*', '.'].includes(directory) && rimraf.sync(directory);
@@ -25,10 +26,13 @@ const writeFile = (file, data, { allowExecution = false, verbose = false } = {})
 };
 
 const readFile = (directory, file) => fs.readFileSync(join(directory, file), 'utf-8');
+const readDirectory = directory => fs.readdirSync(directory);
 
 module.exports = {
   createDirectory,
+  readDirectory,
   deleteDirectory,
   writeFile,
-  readFile
+  readFile,
+  normalizePath
 };

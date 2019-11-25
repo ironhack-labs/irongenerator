@@ -1,5 +1,8 @@
 {
   "extends": ["@ironh/eslint-config", "@ironh/eslint-config/strict", "plugin:prettier/recommended"],
+  "env": {
+    "node": true
+  },
   "rules": {
     "prettier/prettier": ["warn"]
   }
