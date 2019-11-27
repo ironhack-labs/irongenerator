@@ -28,7 +28,6 @@ app.set('view engine', '<%- view.engine %>');
 <% uses.forEach(use => { -%>
 app.use(<%- use %>);
 <% }); -%>
-
 <% mounts.forEach(mount => { -%>
 app.use(<%= mount.path %>, <%- mount.code %>);
 <% }); -%>
