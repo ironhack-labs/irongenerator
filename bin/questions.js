@@ -41,6 +41,30 @@ module.exports = [
   },
   {
     type: 'list',
+    name: 'level',
+    message: 'Level:',
+    default: 0,
+    choices: [
+      {
+        name: 'Beginner',
+        value: 1
+      },
+      {
+        name: 'Medium',
+        value: 2
+      },
+      {
+        name: 'Advanced',
+        value: 3
+      }
+    ],
+    when: async ({ override }) => {
+      if (typeof override !== 'undefined' && !override) throw new Error('NO_OVERRIDE');
+      return true;
+    }
+  },
+  {
+    type: 'list',
     name: 'architecture',
     message: 'Architecture:',
     choices: [
@@ -53,10 +77,7 @@ module.exports = [
         value: 'api'
       }
     ],
-    when: async ({ override }) => {
-      if (typeof override !== 'undefined' && !override) throw new Error('NO_OVERRIDE');
-      return true;
-    }
+    when: async ({ level }) => level >= 2
   },
   {
     type: 'list',
@@ -76,8 +97,8 @@ module.exports = [
         value: 'pug'
       }
     ],
-    default: 'hbs',
-    when: ({ architecture }) => architecture === 'mvc'
+    default: ({ level }) => (level >= 2 ? 'hbs' : null),
+    when: ({ architecture, level }) => architecture === 'mvc' && level >= 2
   },
   {
     type: 'list',
@@ -93,8 +114,8 @@ module.exports = [
         value: 'scss'
       }
     ],
-    default: 'scss',
-    when: ({ architecture }) => architecture === 'mvc'
+    default: ({ level }) => (level >= 2 ? 'scss' : null),
+    when: ({ architecture, level }) => architecture === 'mvc' && level >= 2
   },
   {
     type: 'confirm',
@@ -106,16 +127,16 @@ module.exports = [
   {
     type: 'confirm',
     name: 'database',
-    default: true,
-    message: 'Use MongoDB:'
+    message: 'Use MongoDB:',
+    default: ({ level }) => level >= 2,
+    when: ({ level }) => level >= 2
   },
   {
     type: 'confirm',
     name: 'authentication.enabled',
-    // default: false,
-    default: true,
     message: 'Include Authentication:',
-    when: ({ database }) => database
+    default: ({ level }) => level >= 3,
+    when: ({ level, database }) => level >= 3 && database
   },
   {
     type: 'list',
@@ -135,15 +156,41 @@ module.exports = [
     when: ({ authentication: { enabled } = {} }) => enabled
   },
   {
+    name: 'authentication.strategies',
+    type: 'checkbox',
+    choices: [
+      {
+        name: 'Local',
+        value: 'local'
+      },
+      {
+        name: 'Facebook',
+        value: 'facebook'
+      },
+      {
+        name: 'Twitter',
+        value: 'twitter'
+      },
+      {
+        name: 'GitHub',
+        value: 'github'
+      }
+    ],
+    default: ['local'],
+    when: ({ authentication: { mechanism } = {} }) => mechanism === 'passport'
+  },
+  {
     type: 'confirm',
     name: 'strict',
-    default: false,
-    message: 'Enable Strict Mode:'
+    default: true,
+    message: 'Enable Strict Mode:',
+    when: ({ level }) => level >= 3
   },
   {
     type: 'confirm',
     name: 'linting',
     default: true,
-    message: 'Lint code with ESLint:'
+    message: 'Lint code with ESLint:',
+    when: ({ level }) => level >= 2
   }
 ];

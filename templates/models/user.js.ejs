@@ -14,15 +14,19 @@ const schema = new mongoose.Schema({
     required: true,
     lowercase: true,
     trim: true
-<% if (!authentication.enabled) { -%>
-  }
-<% } else { -%>
+<% if (authentication.enabled) { -%>
+<% if (!authentication.mechanism || authentication.strategies.includes('local')) { -%>
   },
   passwordHash: {
-    type: String,
-    required: true
-  }
+    type: String
 <% } -%>
+<% if (authentication.mechanism === 'passport' && authentication.strategies.includes('github')) { -%>
+  },
+  githubToken: {
+    type: String
+<% } -%>
+<% } -%>
+  }
 });
 
 module.exports = mongoose.model('User', schema);

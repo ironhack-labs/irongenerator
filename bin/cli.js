@@ -7,10 +7,11 @@ const inquirer = require('inquirer');
 const chalk = require('chalk');
 const log = console.log;
 const questions = require('./questions');
-const createApplication = require('./create-app');
+const createApplication = require('./../lib/create-app');
 const { version: VERSION } = require('./../package');
+const { merge } = require('lodash');
 
-const createAppName = name =>
+const normalizeAppName = name =>
   name
     .replace(/[^A-Za-z0-9.-]+/g, '-')
     .replace(/^[-_.]+|-+$/g, '')
@@ -26,18 +27,31 @@ process.on('SIGTERM', terminate);
 
 log('\n', `${chalk.cyan('Welcome to ironmaker!')}  ${chalk.grey('v.' + VERSION)}`, '\n');
 
+const defaultOptions = {
+  architecture: 'mvc',
+  template: null,
+  style: null,
+  database: false,
+  authentication: { enabled: false, mechanism: null },
+  strict: false,
+  linting: false
+};
+
 inquirer
   .prompt(questions)
   .then(async answers => {
-    const name = createAppName(answers.name);
-    const options = {
-      name,
-      directory: path.resolve(process.cwd(), name),
-      ...answers,
-      verbose: true
-    };
-    console.log('\n');
     console.log(answers);
+    const name = normalizeAppName(answers.name);
+    const options = merge(
+      {
+        ...defaultOptions,
+        name,
+        directory: path.resolve(process.cwd(), name),
+        verbose: true
+      },
+      answers
+    );
+    console.log('\n');
     await createApplication(options);
   })
   .catch(error => {

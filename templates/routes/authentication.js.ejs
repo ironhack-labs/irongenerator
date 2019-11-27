@@ -7,22 +7,25 @@ const router = new Router();
 <% if (architecture === 'mvc' && !template) { -%>
 const { join } = require('path');
 <% } -%>
-<% if (authentication.enabled && !authentication.mechanism) { -%>
+<% if (!authentication.mechanism) { -%>
 const User = require('./../models/user');
 const bcryptjs = require('bcryptjs');
+<% } -%>
+<% if (authentication.mechanism === 'passport') { -%>
+const passport = require('passport');
 <% } -%>
 
 <% if (architecture === 'mvc') { -%>
 router.get('/sign-up', (req, res, next) => {
 <% if (template) { -%>
   res.render('sign-up');
-<% } -%>
-<% if (!template) { -%>
+<% } else { -%>
   res.sendFile(join(__dirname, '../views', 'authentication/sign-up.html'));
 <% } -%>
 });
 
 <% } -%>
+<% if (!authentication.mechanism) { -%>
 router.post('/sign-up', (req, res, next) => {
   const { name, email, password } = req.body;
   bcryptjs
@@ -48,17 +51,38 @@ router.post('/sign-up', (req, res, next) => {
     });
 });
 
+<% } -%>
+<% if (authentication.mechanism === 'passport' && authentication.strategies.includes('local')) { -%>
+router.post(
+  '/sign-up',
+  passport.authenticate('local-sign-up', {
+    successRedirect: '/private',
+    failureRedirect: '/sign-up'
+  })
+);
+
+<% } -%>
+<% if (authentication.mechanism === 'passport' && authentication.strategies.includes('github')) { -%>
+router.post(
+  '/sign-up',
+  passport.authenticate('github', {
+    successRedirect: '/private',
+    failureRedirect: '/sign-up'
+  })
+);
+
+<% } -%>
 <% if (architecture === 'mvc') { -%>
 router.get('/sign-in', (req, res, next) => {
 <% if (template) { -%>
   res.render('sign-in');
-<% } -%>
-<% if (!template) { -%>
+<% } else { -%>
   res.sendFile(join(__dirname, '../views', 'authentication/sign-in.html'));
 <% } -%>
 });
 
 <% } -%>
+<% if (!authentication.mechanism) { -%>
 router.post('/sign-in', (req, res, next) => {
   let userId;
   const { email, password } = req.body;
@@ -89,8 +113,41 @@ router.post('/sign-in', (req, res, next) => {
     });
 });
 
+<% } -%>
+<% if (authentication.mechanism === 'passport' && authentication.strategies.includes('local')) { -%>
+router.post(
+  '/sign-in',
+  passport.authenticate('local-sign-in', {
+    successRedirect: '/private',
+    failureRedirect: '/sign-in'
+  })
+);
+
+<% } -%>
+<% if (authentication.mechanism === 'passport' && authentication.strategies.includes('github')) { -%>
+router.get(
+  '/github',
+  passport.authenticate('github', {
+    successRedirect: '/private',
+    failureRedirect: '/authentication/sign-in'
+  })
+);
+
+router.get(
+  '/github-callback',
+  passport.authenticate('github', {
+    successRedirect: '/private',
+    failureRedirect: '/authentication/sign-in'
+  })
+);
+
+<% } -%>
 router.post('/sign-out', (req, res, next) => {
+<% if (authentication.mechanism === 'passport') { -%>
   req.session.destroy();
+<% } else { -%>
+  req.logout();
+<% } -%>
 <% if (architecture === 'mvc') { -%>
   res.redirect('/');
 <% } else if (architecture === 'api') { -%>

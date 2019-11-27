@@ -7,6 +7,9 @@ const router = new Router();
 <% if (architecture === 'mvc' && !template) { -%>
 const { join } = require('path');
 <% } -%>
+<% if (authentication.enabled) { -%>
+const routeGuard = require('./../middleware/route-guard');
+<% } -%>
 
 router.get('/', (req, res, next) => {
 <% if (architecture === 'mvc' && template) { -%>
@@ -20,4 +23,10 @@ router.get('/', (req, res, next) => {
 <% } -%>
 });
 
+<% if (authentication.enabled) { -%>
+router.get('/private', routeGuard, (req, res, next) => {
+  res.render('private');
+});
+
+<% } -%>
 module.exports = router;

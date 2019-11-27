@@ -20,11 +20,10 @@ const terminate = error => {
   const exitCode = error && error instanceof Error ? 1 : 0;
   debug('Terminating node app.');
 <% if (database) { -%>
-  mongoose.disconnect()
-    .finally(() => {
-      debug('Disconnected from database.');
-      process.exit(exitCode);
-    });
+  mongoose.disconnect().finally(() => {
+    debug('Disconnected from database.');
+    process.exit(exitCode);
+  });
 <% } -%>
 <% if (!database) { -%>
   process.exit(exitCode);
@@ -57,6 +56,7 @@ const onError = error => {
 const onListening = server => {
   const { port } = server.address();
   debug(`Node server listening on ${ port }`);
+  if (process.env.NODE_ENV === 'development') debug(`Visit http://localhost:3000 while developing`);
 };
 
 const initiate = () => {
