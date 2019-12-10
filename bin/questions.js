@@ -77,7 +77,7 @@ module.exports = [
         value: 'api'
       }
     ],
-    when: async ({ level }) => level >= 2
+    when: async ({ level }) => level >= 3
   },
   {
     type: 'list',

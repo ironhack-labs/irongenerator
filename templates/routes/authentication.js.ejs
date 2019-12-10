@@ -2,18 +2,20 @@
 'use strict';
 
 <% } -%>
-const { Router } = require('express');
-const router = new Router();
 <% if (architecture === 'mvc' && !template) { -%>
 const { join } = require('path');
 <% } -%>
+const { Router } = require('express');
+
 <% if (!authentication.mechanism) { -%>
-const User = require('./../models/user');
 const bcryptjs = require('bcryptjs');
-<% } -%>
-<% if (authentication.mechanism === 'passport') { -%>
+const User = require('./../models/user');
+
+<% } else if (authentication.mechanism === 'passport') { -%>
 const passport = require('passport');
+
 <% } -%>
+const router = new Router();
 
 <% if (architecture === 'mvc') { -%>
 router.get('/sign-up', (req, res, next) => {
@@ -41,8 +43,7 @@ router.post('/sign-up', (req, res, next) => {
       req.session.user = user._id;
 <% if (architecture === 'mvc') { -%>
       res.redirect('/private');
-<% } -%>
-<% if (architecture === 'api') { -%>
+<% } else if (architecture === 'api') { -%>
       res.json({ user });
 <% } -%>
     })
@@ -84,24 +85,23 @@ router.get('/sign-in', (req, res, next) => {
 <% } -%>
 <% if (!authentication.mechanism) { -%>
 router.post('/sign-in', (req, res, next) => {
-  let userId;
+  let user;
   const { email, password } = req.body;
   User.findOne({ email })
-    .then(user => {
-      if (!user) {
+    .then(document => {
+      if (!document) {
         return Promise.reject(new Error("There's no user with that email."));
       } else {
-        userId = user._id;
+        user = document;
         return bcryptjs.compare(password, user.passwordHash);
       }
     })
     .then(result => {
       if (result) {
-        req.session.user = userId;
+        req.session.user = user._id;
 <% if (architecture === 'mvc') { -%>
         res.redirect('/private');
-<% } -%>
-<% if (architecture === 'api') { -%>
+<% } else if (architecture === 'api') { -%>
         res.json({ user });
 <% } -%>
       } else {
