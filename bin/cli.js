@@ -40,7 +40,6 @@ const defaultOptions = {
 inquirer
   .prompt(questions)
   .then(async answers => {
-    console.log(answers);
     const name = normalizeAppName(answers.name);
     const options = merge(
       {
