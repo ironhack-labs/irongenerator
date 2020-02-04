@@ -8,3 +8,4 @@ app
 /test
 .code
 *.code-workspace
+.vscode
