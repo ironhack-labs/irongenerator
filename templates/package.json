@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "start": "node ./server",
-    "dev": "nodemon ./server"
+    "dev": "nodemon ./server -e js,json,html,hbs,pug"
   },
   "dependencies": {
     "debug": "^4.1.1",
