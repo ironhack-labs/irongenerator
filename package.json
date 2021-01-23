@@ -21,8 +21,8 @@
     "ironmaker": "./bin/cli.js"
   },
   "scripts": {
-    "dev": "./bin/cli.js",
-    "dev:clean": "rm -rf ./app && ./bin/cli.js",
+    "dev": "DEVELOPMENT=true ./bin/cli.js && cd app && npm i",
+    "dev:clean": "DEVELOPMENT=true rm -rf ./app && ./bin/cli.js && cd app && npm i",
     "lint": "eslint .",
     "test": "mocha --reporter spec --bail --check-leaks test/",
     "test-ci": "mocha --reporter spec --check-leaks test/"
@@ -35,22 +35,20 @@
     "inquirer": "^7.0.0",
     "lodash": "^4.17.15",
     "minimatch": "^3.0.4",
-    "mkdirp": "^0.5.1",
+    "mkdirp": "^1.0.4",
     "rimraf": "^3.0.0",
-    "prettier": "^1.19.1",
+    "prettier": "^2.2.1",
     "sorted-object": "^2.0.1"
   },
   "devDependencies": {
-    "@ironh/eslint-config": "^0.0.2",
-    "eslint": "^6.3.0",
-    "eslint-config-prettier": "^6.3.0",
+    "eslint": "^7.18.0",
+    "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-import": "^2.18.2",
-    "eslint-plugin-node": "^10.0.0",
+    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.1",
     "eslint-plugin-promise": "^4.2.1",
-    "mocha": "^6.2.0",
-    "supertest": "^4.0.2",
-    "uid-safe": "^2.1.5"
+    "mocha": "^8.2.1",
+    "supertest": "^4.0.2"
   },
   "files": [
     "LICENSE",

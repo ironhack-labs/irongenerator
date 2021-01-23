@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  form(action='/authentication/sign-in' method='POST')
+    label(for='input-email') Email
+    input#input-email(type='email' name='email' placeholder='Your Email')
+    label(for='input-password') Password
+    input#input-password(type='password' name='password' placeholder='A Strong Password')
+    button Sign In
+  if authentication.strategies && authentication.strategies.includes('github')
+    a(href="/authentication/github") Sign In with GitHub

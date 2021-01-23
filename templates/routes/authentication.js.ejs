@@ -3,7 +3,7 @@
 
 <% } -%>
 <% if (architecture === 'mvc' && !template) { -%>
-const { join } = require('path');
+const path = require('path');
 <% } -%>
 const { Router } = require('express');
 
@@ -22,7 +22,7 @@ router.get('/sign-up', (req, res, next) => {
 <% if (template) { -%>
   res.render('sign-up');
 <% } else { -%>
-  res.sendFile(join(__dirname, '../views', 'authentication/sign-up.html'));
+  res.sendFile(path.join(__dirname, '../views', 'authentication/sign-up.html'));
 <% } -%>
 });
 
@@ -36,11 +36,11 @@ router.post('/sign-up', (req, res, next) => {
       return User.create({
         name,
         email,
-        passwordHash: hash
+        passwordHashAndSalt: hash
       });
     })
     .then(user => {
-      req.session.user = user._id;
+      req.session.userId = user._id;
 <% if (architecture === 'mvc') { -%>
       res.redirect('/private');
 <% } else if (architecture === 'api') { -%>
@@ -78,7 +78,7 @@ router.get('/sign-in', (req, res, next) => {
 <% if (template) { -%>
   res.render('sign-in');
 <% } else { -%>
-  res.sendFile(join(__dirname, '../views', 'authentication/sign-in.html'));
+  res.sendFile(path.join(__dirname, '../views', 'authentication/sign-in.html'));
 <% } -%>
 });
 
@@ -93,12 +93,12 @@ router.post('/sign-in', (req, res, next) => {
         return Promise.reject(new Error("There's no user with that email."));
       } else {
         user = document;
-        return bcryptjs.compare(password, user.passwordHash);
+        return bcryptjs.compare(password, user.passwordHashAndSalt);
       }
     })
     .then(result => {
       if (result) {
-        req.session.user = user._id;
+        req.session.userId = user._id;
 <% if (architecture === 'mvc') { -%>
         res.redirect('/private');
 <% } else if (architecture === 'api') { -%>

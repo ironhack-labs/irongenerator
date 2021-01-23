@@ -2,20 +2,18 @@
 'use strict';
 
 <% } -%>
-const { Router } = require('express');
-const router = new Router();
+const express = require('express');
+const router = new express.Router();
 <% if (architecture === 'mvc' && !template) { -%>
-const { join } = require('path');
+const path = require('path');
 <% } -%>
 <% if (authentication.enabled) { -%>
 const routeGuard = require('./../middleware/route-guard');
 <% } -%>
 
 router.get('/', (req, res, next) => {
-<% if (architecture === 'mvc' && template) { -%>
-  res.render('index', { title: 'Hello World!' });
-<% } else if (architecture === 'mvc' && !template) { -%>
-  res.sendFile(join(__dirname, '../views', 'index.html'));
+<% if (architecture === 'mvc') { -%>
+  res.render('home', { title: 'Hello World!' });
 <% } else if (architecture === 'api') { -%>
   res.json({ type: 'success', data: { title: 'Hello World' } });
 <% } -%>
@@ -23,10 +21,8 @@ router.get('/', (req, res, next) => {
 
 <% if (authentication.enabled) { -%>
 router.get('/private', routeGuard, (req, res, next) => {
-<% if (architecture === 'mvc' && template) { -%>
+<% if (architecture === 'mvc') { -%>
   res.render('private');
-<% } else if (architecture === 'mvc' && !template) { -%>
-  res.sendFile(join(__dirname, '../views', 'index.html'));
 <% } else if (architecture === 'api') { -%>
   res.json({});
 <% } -%>

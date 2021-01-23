@@ -9,3 +9,5 @@ app
 .code
 *.code-workspace
 .vscode
+temp
+tmp

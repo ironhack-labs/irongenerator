@@ -6,6 +6,16 @@ html(lang="en")
     title=title
     link(ref="stylesheet", href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" )
     link(rel="stylesheet", href="/styles/style.css")
+
   body
+<% if (authentication.enabled) { -%>
+    if user
+      a(href="/") #{user.name}'s Profile
+      form(action="/authentication/sign-out", method="POST")
+        button Sign Out
+    else
+      a(href="/authentication/sign-in") Sign In
+      a(href="/authentication/sign-up") Sign Up
+<% } -%>
     block content
     script(src="/scripts/script.js")

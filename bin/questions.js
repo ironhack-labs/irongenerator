@@ -1,20 +1,19 @@
 'use strict';
 
-// const debug = true;
-const debug = false;
-
-const developmentMode = false;
+const DEVELOPMENT_MODE = Boolean(process.env.DEVELOPMENT);
 
 const fs = require('fs');
 const path = require('path');
 
-const checkIfDirectoryIsEmpty = directory =>
-  new Promise((resolve, reject) => {
-    fs.readdir(directory, (err, files) => {
-      if (err && err.code !== 'ENOENT') return reject(err);
-      resolve(!files || !files.length);
-    });
-  });
+const checkIfDirectoryIsEmpty = async (directory) => {
+  try {
+    const files = await fs.promises.readdir(directory);
+    return !files.length;
+  } catch (error) {
+    if (error.code === 'ENOENT') return true;
+    throw error;
+  }
+};
 
 module.exports = [
   {
@@ -22,17 +21,17 @@ module.exports = [
     type: 'input',
     message: 'App name:',
     default: 'app',
-    filter: value =>
+    filter: (value) =>
       value
         .replace(/[^A-Za-z0-9.-]+/g, '-')
         .replace(/^[-_.]+|-+$|\./g, '')
         .toLowerCase(),
-    validate: value => !!value || 'Generated app should have a name'
+    validate: (value) => !!value || 'Generated app should have a name'
   },
   {
     type: 'confirm',
     name: 'override',
-    default: !!debug,
+    default: false,
     message: "There's already a folder with that name. Should ironmaker replace it?:",
     when: async ({ name }) => {
       const empty = await checkIfDirectoryIsEmpty(path.join(process.cwd(), name));
@@ -77,6 +76,7 @@ module.exports = [
         value: 'api'
       }
     ],
+    default: 'mvc',
     when: async ({ level }) => level >= 3
   },
   {
@@ -84,10 +84,6 @@ module.exports = [
     name: 'template',
     message: 'Templating Engine:',
     choices: [
-      {
-        name: 'None (static HTML)',
-        value: null
-      },
       {
         name: 'Handlebars',
         value: 'hbs'
@@ -97,7 +93,7 @@ module.exports = [
         value: 'pug'
       }
     ],
-    default: ({ level }) => (level >= 2 ? 'hbs' : null),
+    default: 'hbs',
     when: ({ architecture, level }) => architecture === 'mvc' && level >= 2
   },
   {
@@ -115,14 +111,14 @@ module.exports = [
       }
     ],
     default: ({ level }) => (level >= 2 ? 'scss' : null),
-    when: ({ architecture, level }) => architecture === 'mvc' && level >= 2
+    when: ({ architecture, level }) => level === 2 || (level > 2 && architecture === 'mvc')
   },
   {
     type: 'confirm',
     name: 'bootstrap',
     message: 'Include Bootstrap styles and scripts:',
     default: true,
-    when: ({ architecture }) => developmentMode && architecture === 'mvc'
+    when: ({ architecture }) => DEVELOPMENT_MODE && architecture === 'mvc'
   },
   {
     type: 'confirm',
@@ -163,14 +159,18 @@ module.exports = [
         name: 'Local',
         value: 'local'
       },
-      {
-        name: 'Facebook',
-        value: 'facebook'
-      },
-      {
-        name: 'Twitter',
-        value: 'twitter'
-      },
+      ...(DEVELOPMENT_MODE
+        ? [
+            {
+              name: 'Facebook',
+              value: 'facebook'
+            },
+            {
+              name: 'Twitter',
+              value: 'twitter'
+            }
+          ]
+        : []),
       {
         name: 'GitHub',
         value: 'github'

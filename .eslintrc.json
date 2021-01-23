@@ -1,10 +1,50 @@
 {
-  "extends": ["@ironh/eslint-config", "@ironh/eslint-config/strict", "plugin:prettier/recommended"],
+  "root": true,
+  "extends": ["eslint:recommended", "prettier"],
+  "plugins": ["prettier"],
   "env": {
+    "es6": true,
     "node": true
   },
+  "parserOptions": {
+    "ecmaVersion": 2020,
+    "ecmaFeatures": {
+      "impliedStrict": false
+    }
+  },
   "rules": {
-    "prettier/prettier": ["warn"],
-    "no-unused-vars": 1
+    "func-call-spacing": ["warn", "never"],
+    "keyword-spacing": [
+      "warn",
+      {
+        "before": true,
+        "after": true
+      }
+    ],
+    "no-unused-vars": ["warn"],
+    "no-undef": ["error"],
+    "no-var": ["warn"],
+    "no-param-reassign": ["error"],
+    "no-shadow": ["warn"],
+    "no-labels": ["error"],
+    "prefer-arrow-callback": ["warn"],
+    "prefer-const": ["warn"],
+    "prettier/prettier": [
+      "error",
+      {},
+      {
+        "usePrettierrc": true
+      }
+    ],
+    "quote-props": ["off"],
+    "space-before-function-paren": [
+      "warn",
+      {
+        "anonymous": "never",
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
+    "space-before-blocks": ["warn", "always"]
   }
 }

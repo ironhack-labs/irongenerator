@@ -17,7 +17,7 @@ const schema = new mongoose.Schema({
 <% if (authentication.enabled) { -%>
 <% if (!authentication.mechanism || authentication.strategies.includes('local')) { -%>
   },
-  passwordHash: {
+  passwordHashAndSalt: {
     type: String
 <% } -%>
 <% if (authentication.mechanism === 'passport' && authentication.strategies.includes('github')) { -%>

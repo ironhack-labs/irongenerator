@@ -43,7 +43,7 @@ passport.use(
         return User.create({
           name,
           email,
-          passwordHash: hash
+          passwordHashAndSalt: hash
         });
       })
       .then(user => {
@@ -64,7 +64,7 @@ passport.use(
     })
       .then(document => {
         user = document;
-        return bcryptjs.compare(password, user.passwordHash);
+        return bcryptjs.compare(password, user.passwordHashAndSalt);
       })
       .then(passwordMatchesHash => {
         if (passwordMatchesHash) {

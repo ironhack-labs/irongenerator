@@ -1,0 +1,11 @@
+extends layout
+
+block content
+  h1 Private
+  p This page should only be accessible to authenticated users.
+  span
+    strong Name
+    | : #{user.name}
+    br
+    strong Email
+    | : #{user.email}

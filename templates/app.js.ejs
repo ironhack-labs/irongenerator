@@ -2,7 +2,7 @@
   'use strict';
 
 <% } -%>
-const { join } = require('path');
+const path = require('path');
 const express = require('express');
 const createError = require('http-errors');
 <% Object.keys(modules).sort().forEach(variable => { -%>
@@ -18,10 +18,7 @@ const createError = require('http-errors');
 const app = express();
 
 <% if (view) { -%>
-  <% if (view.render) { -%>
-    app.engine('<%- view.engine %>', <%- view.render %>);
-  <% } -%>
-  app.set('views', join(__dirname, 'views'));
+  app.set('views', path.join(__dirname, 'views'));
   app.set('view engine', '<%- view.engine %>');
 
 <% } -%>
@@ -43,7 +40,7 @@ app.use((req, res, next) => {
 
 // Catch all error handler
 app.use((error, req, res, next) => {
-  <% if (architecture === 'mvc' && template) { -%>
+  <% if (architecture === 'mvc') { -%>
     // Set error information, with stack only available in development
     res.locals.message = error.message;
     res.locals.error = req.app.get('env') === 'development' ? error : {};
@@ -52,8 +49,6 @@ app.use((error, req, res, next) => {
   <% if (architecture === 'mvc') { -%>
     <% if (template) { -%>
       res.render('error');
-    <% } else { -%>
-      res.sendFile(join(__dirname, './views', 'error.html'));
     <% } -%>
   <% } else if (architecture === 'api') { -%>
     res.json({ type: 'error', error: { message: error.message } });

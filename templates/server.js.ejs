@@ -2,7 +2,8 @@
 'use strict';
 
 <% } -%>
-require('dotenv').config();
+const dotenv = require('dotenv');
+dotenv.config();
 
 const debug = require('debug')('<%- name %>:server');
 const app = require('./app');
@@ -12,7 +13,7 @@ const mongoose = require('mongoose');
 
 const PORT = parseInt(process.env.PORT, 10);
 <% if (database) { -%>
-const URI = process.env.MONGODB_URI;
+const MONGODB_URI = process.env.MONGODB_URI;
 <% } -%>
 
 const terminate = error => {
@@ -69,17 +70,18 @@ const initiate = () => {
 
 <% if (database) { -%>
 mongoose
-  .connect(URI, {
+  .connect(MONGODB_URI, {
     useNewUrlParser: true,
     useCreateIndex: true,
-    useUnifiedTopology: true
+    useUnifiedTopology: true,
+    useFindAndModify: true
   })
   .then(() => {
-    debug(`Database connected to URI "${ URI }"`);
+    debug(`Database connected to URI "${ MONGODB_URI }"`);
     initiate();
   })
   .catch(error => {
-    console.error(`There was an error connecting the database to URI "${ URI }"`);
+    console.error(`There was an error connecting the database to URI "${ MONGODB_URI }"`);
     debug(error);
     process.exit(1);
   });
