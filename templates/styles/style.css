@@ -21,15 +21,18 @@ a {
 nav {
   display: flex;
 }
+
 nav a,
 nav button {
   padding: 1em 0;
   border: 0;
 }
+
 nav a:not(:last-child),
 nav button:not(:last-child) {
   margin-right: 1em;
 }
+
 nav a:first-child,
 nav button:first-child {
   margin-right: auto;
@@ -42,6 +45,7 @@ p {
   margin: 0;
   line-height: inherit;
 }
+
 h1:not(:last-child),
 h2:not(:last-child),
 h3:not(:last-child),
@@ -59,12 +63,15 @@ form {
   flex-direction: column;
 }
 
-input,
+input:not([type='checkbox']),
+input:not([type='radio']),
+input:not([type='range']),
 textarea,
+select,
 button,
 .btn {
   padding: 1em;
-  border: 1px solid rgba(191, 191, 191, 0.5);
+  border: 1px solid #e6e6e6;
   border-radius: 0;
   margin-bottom: 1em;
   font: inherit;
@@ -75,4 +82,8 @@ button,
 textarea {
   min-height: 8em;
   resize: vertical;
+}
+
+label {
+  margin-bottom: 0.5em;
 }

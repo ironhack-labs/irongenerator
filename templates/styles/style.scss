@@ -1,5 +1,5 @@
 $font-sans: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-$grey: hsla(0, 0, 75%, 0.5);
+$grey: hsl(0, 0, 90%);
 
 * {
   &,
@@ -59,8 +59,11 @@ form {
   flex-direction: column;
 }
 
-input,
+input:not([type='checkbox']),
+input:not([type='radio']),
+input:not([type='range']),
 textarea,
+select,
 button,
 .btn {
   padding: 1em;
@@ -75,4 +78,8 @@ button,
 textarea {
   min-height: 8em;
   resize: vertical;
+}
+
+label {
+  margin-bottom: 0.5em;
 }
