@@ -70,12 +70,7 @@ const initiate = () => {
 
 <% if (database) { -%>
 mongoose
-  .connect(MONGODB_URI, {
-    useNewUrlParser: true,
-    useCreateIndex: true,
-    useUnifiedTopology: true,
-    useFindAndModify: true
-  })
+  .connect(MONGODB_URI)
   .then(() => {
     debug(`Database connected to URI "${ MONGODB_URI }"`);
     initiate();
