@@ -11,7 +11,7 @@ const app = require('./app');
 const mongoose = require('mongoose');
 <% } -%>
 
-const PORT = parseInt(process.env.PORT, 10);
+const PORT = Number(process.env.PORT, 10);
 <% if (database) { -%>
 const MONGODB_URI = process.env.MONGODB_URI;
 <% } -%>
