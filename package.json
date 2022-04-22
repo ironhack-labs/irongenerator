@@ -25,13 +25,14 @@
     "dev:clean": "DEVELOPMENT=true rm -rf ./app && ./bin/cli.js && cd app && npm i",
     "lint": "eslint .",
     "test": "mocha --reporter spec --bail --check-leaks test/",
-    "test-ci": "mocha --reporter spec --check-leaks test/"
+    "test-ci": "mocha --reporter spec --check-leaks test/",
+    "prettify": "prettier --write ."
   },
   "engines": {
     "node": ">=8.0.0"
   },
   "dependencies": {
-    "ejs": "^3.1.6",
+    "ejs": "^3.1.7",
     "inquirer": "^8.2.2",
     "lodash": "^4.17.21",
     "minimatch": "^5.0.1",

@@ -48,7 +48,11 @@ const outputInstructions = ({ directory }) => {
 };
 
 const run = async () => {
-  log('\n', `${chalk.cyan('Welcome to ironmaker!')}  ${chalk.grey('v.' + VERSION)}`, '\n');
+  log(
+    '\n',
+    `${chalk.cyan('Welcome to ironmaker!')}  ${chalk.grey('v.' + VERSION)}`,
+    '\n'
+  );
 
   const defaultOptions = {
     architecture: 'mvc',
@@ -64,7 +68,10 @@ const run = async () => {
     const answers = await inquirer.prompt(questions);
     const name = normalizeAppName(answers.name);
     const directory = resolve(process.cwd(), name);
-    const options = merge({ ...defaultOptions, name, directory, verbose: true }, { ...answers });
+    const options = merge(
+      { ...defaultOptions, name, directory, verbose: true },
+      { ...answers }
+    );
     await createApplication(options);
     outputInstructions({ directory });
   } catch (error) {

@@ -32,9 +32,12 @@ module.exports = [
     type: 'confirm',
     name: 'override',
     default: false,
-    message: "There's already a folder with that name. Should ironmaker replace it?:",
+    message:
+      "There's already a folder with that name. Should ironmaker replace it?:",
     when: async ({ name }) => {
-      const empty = await checkIfDirectoryIsEmpty(path.join(process.cwd(), name));
+      const empty = await checkIfDirectoryIsEmpty(
+        path.join(process.cwd(), name)
+      );
       return !empty;
     }
   },
@@ -58,7 +61,8 @@ module.exports = [
       }
     ],
     when: async ({ override }) => {
-      if (typeof override !== 'undefined' && !override) throw new Error('NO_OVERRIDE');
+      if (typeof override !== 'undefined' && !override)
+        throw new Error('NO_OVERRIDE');
       return true;
     }
   },
@@ -111,7 +115,8 @@ module.exports = [
       }
     ],
     default: ({ level }) => (level >= 2 ? 'scss' : null),
-    when: ({ architecture, level }) => level === 2 || (level > 2 && architecture === 'mvc')
+    when: ({ architecture, level }) =>
+      level === 2 || (level > 2 && architecture === 'mvc')
   },
   {
     type: 'confirm',

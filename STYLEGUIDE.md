@@ -1,4 +1,4 @@
-# Irongenerator Styleguides
+# Ironmaker Styleguides
 
 While this certainly won't be a totally all-inclusive style guide, we want to nail down some rules so we can be consistent.
 
@@ -71,13 +71,15 @@ const foo = a === b ? 1 : 2;
 ```jsx
 // right:
 
-const isValidPassword = password.length >= 4 && /^(?=.*\d).{4,}$/.test(password);
+const isValidPassword =
+  password.length >= 4 && /^(?=.*\d).{4,}$/.test(password);
 
 if (isValidPassword) console.log('Password validation successful!');
 
 // wrong:
 
-if (password.length >= 4 && /^(?=.*\d).{4,}$/.test(password)) console.log('blah!');
+if (password.length >= 4 && /^(?=.*\d).{4,}$/.test(password))
+  console.log('blah!');
 ```
 
 ## Functions <small>[(see examples of right and wrong here)](https://github.com/felixge/node-style-guide#functions-1)</small>
@@ -94,19 +96,19 @@ if (password.length >= 4 && /^(?=.*\d).{4,}$/.test(password)) console.log('blah!
 User.findOne({ name: 'foo' })
   .populate('bar')
   .then(() => console.log('success!'))
-  .catch(err => console.log(`ooops: ${err}`));
+  .catch((err) => console.log(`ooops: ${err}`));
 
 // wrong:
 
 User.findOne({ name: 'foo' })
   .populate('bar')
   .then(() => console.log('sucess!'))
-  .catch(err => console.log(`ooops: ${err}`));
+  .catch((err) => console.log(`ooops: ${err}`));
 
 User.findOne({ name: 'foo' })
   .populate('bar')
   .then(() => console.log('sucess!'))
-  .catch(err => console.log(`ooops: ${err}`));
+  .catch((err) => console.log(`ooops: ${err}`));
 ```
 
 ## Comments

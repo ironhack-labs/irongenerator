@@ -12,6 +12,12 @@
     }
   },
   "rules": {
-    "prettier/prettier": ["error", {}, { "usePrettierrc": true }]
+    "prettier/prettier": [
+      "error",
+      {},
+      { "usePrettierrc": true },
+      { "endOfLine": "auto" }
+    ],
+    "no-unused-vars": "off"
   }
 }
