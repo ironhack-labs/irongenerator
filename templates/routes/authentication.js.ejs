@@ -155,4 +155,10 @@ router.post('/sign-out', (req, res, next) => {
 <% } -%>
 });
 
+<% if (architecture === 'api') { -%>
+router.get('/me', (req, res, next) => {
+  res.json({ user: req.user });
+});  
+<% } -%>
+
 module.exports = router;
