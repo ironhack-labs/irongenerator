@@ -2,12 +2,19 @@
   'use strict';
 
 <% } -%>
+
+const dotenv = require('dotenv');
+dotenv.config();
+
 const path = require('path');
 const express = require('express');
 const createError = require('http-errors');
 <% Object.keys(modules).sort().forEach(variable => { -%>
   const <%- variable %> = require('<%- modules[variable] %>');
 <% }); -%>
+<% if (database) { -%>
+  const mongoose = require('mongoose');
+<% } -%>
 <% Object.keys(localModules).sort().forEach(variable => { -%>
   const <%- variable %> = require('<%- localModules[variable] %>');
 <% }); -%>
@@ -55,4 +62,37 @@ app.use((error, req, res, next) => {
   <% } -%>
 });
 
-module.exports = app;
+const {
+  NODE_ENV,
+  PORT,
+<% if (database) { -%>
+  MONGODB_URI
+<% } -%>
+} = process.env;
+
+<% if (database) { -%>
+mongoose
+  .connect(MONGODB_URI)
+  .then(() => {
+    console.log(`Database connected to URI "${MONGODB_URI}"`);
+<% } -%>
+    app
+      .listen(Number(PORT), () => {
+        console.log(`Server listening to requests on port ${PORT}`);
+        if (NODE_ENV === 'development') {
+          console.log(`Visit http://localhost:${PORT} to develop your app`);
+        }
+      })
+      .on('error', (error) => {
+        console.log('There was a server error.', error);
+        process.exit(1);
+      });
+<% if (database) { -%>
+  })
+  .catch((error) => {
+    console.log(
+      `There was an error connecting to the database "${MONGODB_URI}"`,
+      error
+    );
+  });
+<% } -%>
